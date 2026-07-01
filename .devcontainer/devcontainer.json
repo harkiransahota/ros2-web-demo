@@ -1,0 +1,15 @@
+{
+  "name": "ROS2 Humble",
+  "image": "ros:humble",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-iot.vscode-ros",
+        "ms-python.python"
+      ]
+    }
+  },
+
+  "postCreateCommand": "apt update && apt install -y python3-colcon-common-extensions"
+}
