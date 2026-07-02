@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'velocity_publisher = my_robot.velocity_publisher:main',
+            'velocity_subscriber = my_robot.velocity_subscriber:main'
         ],
     },
 )
