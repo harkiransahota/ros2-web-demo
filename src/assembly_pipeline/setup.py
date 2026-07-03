@@ -25,9 +25,9 @@ setup(
     entry_points={
         'console_scripts': [
             'cad_loader = assembly_pipeline.cad_loader:main',
-            'feature_analyser = assembly_pipeline.feature_analyser:main'
-            'operation_reasoner = assembly_pipeline.operation_reasoner:main'
-            'instruction_generator = assembly_pipeline.instruction_generator:main'
+            'feature_analyser = assembly_pipeline.feature_analyser:main',
+            'operation_reasoner = assembly_pipeline.operation_reasoner:main',
+            'instruction_generator = assembly_pipeline.instruction_generator:main',
         ],
     },
 )
