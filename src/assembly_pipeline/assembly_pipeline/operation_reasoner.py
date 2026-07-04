@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+import json
 
 from std_msgs.msg import String
 
@@ -21,14 +22,14 @@ class OperationReasoner(Node):
         )
     
     def operation_reasoner_callback(self,msg):
-        feature=msg.data
+        feature=json.loads(msg.data)
         self.get_logger().info(
             f"RECIEVING: feature information {feature}"
         )
 
         new_msg=String()
         operations=self.reason_operations(feature)
-        new_msg.data=operations
+        new_msg.data=json.dumps(operations)
 
         self.operation_publisher.publish(new_msg)
         self.get_logger().info(
@@ -37,7 +38,8 @@ class OperationReasoner(Node):
 
     def reason_operations(self,feature):
         #do operation reasoning here
-        return f"[OPERATION LIST]"
+        operations={"model":feature["model"],"operations":["step1","step2","step3"]}
+        return operations
 
 def main(args=None):
     rclpy.init(args=args)

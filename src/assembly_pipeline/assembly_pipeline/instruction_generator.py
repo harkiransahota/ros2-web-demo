@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+import json
 
 from std_msgs.msg import String
 
@@ -21,14 +22,14 @@ class InstructionGenerator(Node):
         )
     
     def instruction_generator_callback(self,msg):
-        operations=msg.data
+        operations=json.loads(msg.data)
         self.get_logger().info(
             f"RECIEVING: operation information {operations}"
         )
 
         new_msg=String()
         instructions=self.generate_instructions(operations)
-        new_msg.data=instructions
+        new_msg.data=json.dumps(instructions)
 
         self.instruction_publisher.publish(new_msg)
         self.get_logger().info(
@@ -37,7 +38,8 @@ class InstructionGenerator(Node):
 
     def generate_instructions(self,operations):
         #do operation reasoning here
-        return f"[INSTRUCTION LIST]"
+        instructions={"model":operations["model"],"instructions":["Do ...","Take ...","Go ...","Do ..."]}
+        return instructions
 
 def main(args=None):
     rclpy.init(args=args)

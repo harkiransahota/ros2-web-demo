@@ -1,11 +1,14 @@
 import rclpy
 from rclpy.node import Node
+import json
 
 from std_msgs.msg import String
 
 class FeatureAnalyser(Node):
     def __init__(self):
         super().__init__("feature_analyser")
+
+        self.declare_parameter("cad_model_directory","./models/")
 
         self.feature_publisher=self.create_publisher(
             String,
@@ -20,29 +23,35 @@ class FeatureAnalyser(Node):
             10
         )
 
+        directory=self.get_parameter("cad_model_directory").value
+        self.cad_model_features = {
+            directory+"cockpit.glb":{"model":"cockpit","components":["a","b","c"],"screw_connections":["1","2","3"]},
+            directory+"bumper.glb":{"model":"bumper","components":["a","b","c"],"screw_connections":["1","2","3"]},
+            directory+"cooler.glb":{"model":"cooler","components":["a","b","c"],"screw_connections":["1","2","3"]}
+        }
     
     def feature_analyser_callback(self,msg):
         #recieve the model name
-        model_name=msg.data
+        model=json.loads(msg.data)
         
         self.get_logger().info(
-            f"RECIVING: model {model_name}, starting feature analyser"
+            f"RECIVING: model {model}, starting feature analyser"
         )
 
         #do feature analysis here
         new_msg=String()
-        feature=self.extract_features(model_name)
-        new_msg.data = feature
+        feature=self.extract_features(model)
+        new_msg.data = json.dumps(feature)
         #publish the model feature
         self.feature_publisher.publish(new_msg)
 
         self.get_logger().info(
-            f"PUBLISHING: {model_name} derived feature {feature}"
+            f"PUBLISHING: {model} derived feature {feature}"
         )
 
-    def extract_features(self, model_name):
-        #do feature extraction here
-        return f"[FEATURE LIST]"
+    def extract_features(self, model):
+        feature_list=self.cad_model_features[model["cad_file"]]
+        return feature_list
         
 def main(args=None):
     rclpy.init(args=args)

@@ -1,4 +1,5 @@
 import rclpy
+import json
 from rclpy.node import Node #import ros node
 
 from std_msgs.msg import String #import message type twist for velocity information
@@ -6,6 +7,9 @@ from std_msgs.msg import String #import message type twist for velocity informat
 class CadLoader(Node):
     def __init__(self):
         super().__init__("cad_loader")
+
+        self.declare_parameter("publish_rate",5.0)
+        self.declare_parameter("cad_model_directory","./models/")
     
         self.cad_publisher=self.create_publisher(
             String,
@@ -14,31 +18,37 @@ class CadLoader(Node):
         )
 
         self.timer=self.create_timer(
-            1.0,
+            self.get_parameter("publish_rate").value,
             self.cad_loader_callback
         )
-
+        
+        directory=self.get_parameter("cad_model_directory").value
         self.cad_models = [
-            "toy_car.glb",
-            "battery_holder.glb",
-            "bus_door.glb"
+            {"assembly": "Cockpit", "revision": "v1", "cad_file": directory+"cockpit.glb"},
+            {"assembly": "Bumper", "revision": "v1", "cad_file": directory+"bumper.glb"},
+            {"assembly": "Cooler", "revision": "v1", "cad_file": directory+"cooler.glb"}
         ]
 
         self.current_index = 0
     
-
-
-    def cad_loader_callback(self):
-
-        msg = String()
-        msg.data = self.cad_models[self.current_index]
+    def load_cad_models(self):
+        model=self.cad_models[self.current_index]
 
         self.current_index += 1
 
         if self.current_index >= len(self.cad_models):
             self.current_index = 0
-            self.cad_publisher.publish(msg)
+        
+        return model
+            
 
+
+    def cad_loader_callback(self):
+        msg = String()
+        cad=self.load_cad_models()
+        msg.data = json.dumps(cad)
+
+        self.cad_publisher.publish(msg)
         self.get_logger().info(
             f"PUBLISHING: next model in assembly line: {msg}"
         )
