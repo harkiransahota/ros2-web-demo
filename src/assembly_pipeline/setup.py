@@ -26,6 +26,8 @@ setup(
 
     entry_points={
         'console_scripts': [
+            'status_server = assembly_pipeline.pipeline_status_server:main',
+            'status_client = assembly_pipeline.pipeline_status_client:main',
             'cad_loader = assembly_pipeline.cad_loader:main',
             'feature_analyser = assembly_pipeline.feature_analyser:main',
             'operation_reasoner = assembly_pipeline.operation_reasoner:main',
