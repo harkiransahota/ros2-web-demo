@@ -2,7 +2,8 @@ import rclpy
 import json
 from rclpy.node import Node #import ros node
 
-from std_msgs.msg import String #import message type twist for velocity information
+#from std_msgs.msg import String #import message type twist for velocity information
+from assembly_pipeline_interfaces.msg import InputModel #import custom messages
 
 class CadLoader(Node):
     def __init__(self):
@@ -12,7 +13,7 @@ class CadLoader(Node):
         self.declare_parameter("cad_model_directory","./models/")
     
         self.cad_publisher=self.create_publisher(
-            String,
+            InputModel,
             "/input_model",
             10
         )
@@ -44,9 +45,11 @@ class CadLoader(Node):
 
 
     def cad_loader_callback(self):
-        msg = String()
+        msg = InputModel()
         cad=self.load_cad_models()
-        msg.data = json.dumps(cad)
+        msg.assembly_name = cad.get("assembly")
+        msg.cad_file = cad.get("cad_file")
+        msg.revision = cad.get("revision")
 
         self.cad_publisher.publish(msg)
         self.get_logger().info(

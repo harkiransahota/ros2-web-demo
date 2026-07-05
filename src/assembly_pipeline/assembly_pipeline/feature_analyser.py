@@ -2,7 +2,9 @@ import rclpy
 from rclpy.node import Node
 import json
 
-from std_msgs.msg import String
+#from std_msgs.msg import String
+from assembly_pipeline_interfaces.msg import InputModel
+from assembly_pipeline_interfaces.msg import GeometryFeatures
 
 class FeatureAnalyser(Node):
     def __init__(self):
@@ -11,13 +13,13 @@ class FeatureAnalyser(Node):
         self.declare_parameter("cad_model_directory","./models/")
 
         self.feature_publisher=self.create_publisher(
-            String,
+            GeometryFeatures,
             "/model_feature",
             10
         )
 
         self.model_subscriber=self.create_subscription(
-            String,
+            InputModel,
             "/input_model",
             self.feature_analyser_callback,
             10
@@ -32,25 +34,32 @@ class FeatureAnalyser(Node):
     
     def feature_analyser_callback(self,msg):
         #recieve the model name
-        model=json.loads(msg.data)
+        assembly_name = msg.assembly_name
+        cad_file = msg.cad_file
+        revision = msg.revision
         
         self.get_logger().info(
-            f"RECIVING: model {model}, starting feature analyser"
+            f"RECIVING: model {assembly_name}"
         )
 
         #do feature analysis here
-        new_msg=String()
-        feature=self.extract_features(model)
-        new_msg.data = json.dumps(feature)
+        new_msg=GeometryFeatures()
+        feature=self.extract_features(cad_file)
+
+        new_msg.assembly_name = assembly_name
+        new_msg.cad_file = cad_file
+        new_msg.components = feature.get("components")
+        new_msg.screw_connections = feature.get("screw_connections")
+
         #publish the model feature
         self.feature_publisher.publish(new_msg)
 
         self.get_logger().info(
-            f"PUBLISHING: {model} derived feature {feature}"
+            f"PUBLISHING: derived feature for {assembly_name}: {new_msg.components} \n {new_msg.screw_connections}"
         )
 
-    def extract_features(self, model):
-        feature_list=self.cad_model_features[model["cad_file"]]
+    def extract_features(self, cad_file):
+        feature_list=self.cad_model_features[cad_file]
         return feature_list
         
 def main(args=None):

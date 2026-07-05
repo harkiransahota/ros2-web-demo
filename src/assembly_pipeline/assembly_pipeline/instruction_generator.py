@@ -2,43 +2,48 @@ import rclpy
 from rclpy.node import Node
 import json
 
-from std_msgs.msg import String
+#from std_msgs.msg import String
+from assembly_pipeline_interfaces.msg import AssemblyOperations
+from assembly_pipeline_interfaces.msg import AssemblyInstructions
 
 class InstructionGenerator(Node):
     def __init__(self):
         super().__init__("instruction_generator")
 
         self.instruction_publisher=self.create_publisher(
-            String,
+            AssemblyInstructions,
             "/instructions",
             10
         )
 
         self.operation_subscriber=self.create_subscription(
-            String,
+            AssemblyOperations,
             "/operations",
             self.instruction_generator_callback,
             10
         )
     
     def instruction_generator_callback(self,msg):
-        operations=json.loads(msg.data)
+        assembly_name=msg.assembly_name
+        operations=msg.operations
+
         self.get_logger().info(
-            f"RECIEVING: operation information {operations}"
+            f"RECIEVING: operation information for {assembly_name}"
         )
 
-        new_msg=String()
+        new_msg=AssemblyInstructions()
         instructions=self.generate_instructions(operations)
-        new_msg.data=json.dumps(instructions)
+        new_msg.assembly_name=assembly_name
+        new_msg.instructions=instructions
 
         self.instruction_publisher.publish(new_msg)
         self.get_logger().info(
-            f"PUBLISHING: {operations} derived instructions: {instructions}"
+            f"PUBLISHING: instructions derived for {assembly_name}: {instructions}"
         )
 
     def generate_instructions(self,operations):
         #do operation reasoning here
-        instructions={"model":operations["model"],"instructions":["Do ...","Take ...","Go ...","Do ..."]}
+        instructions=["Do ...","Take ...","Go ...","Do ..."]
         return instructions
 
 def main(args=None):

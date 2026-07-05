@@ -1,0 +1,3 @@
+string assembly_name
+string cad_file
+string revision
