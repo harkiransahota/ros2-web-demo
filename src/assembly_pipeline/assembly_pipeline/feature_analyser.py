@@ -20,7 +20,7 @@ class FeatureAnalyser(Node):
 
         self.model_subscriber=self.create_subscription(
             InputModel,
-            "/input_model",
+            "/loaded_model",
             self.feature_analyser_callback,
             10
         )

@@ -32,6 +32,8 @@ setup(
             'feature_analyser = assembly_pipeline.feature_analyser:main',
             'operation_reasoner = assembly_pipeline.operation_reasoner:main',
             'instruction_generator = assembly_pipeline.instruction_generator:main',
+            'action_server = assembly_pipeline.action_server:main',
+            'action_client = assembly_pipeline.action_client:main',
         ],
     },
 

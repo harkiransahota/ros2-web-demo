@@ -11,6 +11,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/AssemblyOperations.msg"
   "msg/AssemblyInstructions.msg"
 
+  "action/GenerateAssemblyPlan.action"
+
 )
+
 
 ament_package()

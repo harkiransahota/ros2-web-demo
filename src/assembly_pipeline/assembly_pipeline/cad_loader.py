@@ -14,46 +14,35 @@ class CadLoader(Node):
     
         self.cad_publisher=self.create_publisher(
             InputModel,
-            "/input_model",
+            "/loaded_model",
             10
         )
 
-        self.timer=self.create_timer(
-            self.get_parameter("publish_rate").value,
-            self.cad_loader_callback
+        # self.timer=self.create_timer(
+        #     self.get_parameter("publish_rate").value,
+        #     self.cad_loader_callback
+        # )
+
+        #replace timer by waiting for the action request
+        self.request_subscriber=self.create_subscription(
+            InputModel,
+            "/input_model_request",
+            self.cad_loader_callback,
+            10
         )
         
-        directory=self.get_parameter("cad_model_directory").value
-        self.cad_models = [
-            {"assembly": "Cockpit", "revision": "v1", "cad_file": directory+"cockpit.glb"},
-            {"assembly": "Bumper", "revision": "v1", "cad_file": directory+"bumper.glb"},
-            {"assembly": "Cooler", "revision": "v1", "cad_file": directory+"cooler.glb"}
-        ]
-
-        self.current_index = 0
     
-    def load_cad_models(self):
-        model=self.cad_models[self.current_index]
-
-        self.current_index += 1
-
-        if self.current_index >= len(self.cad_models):
-            self.current_index = 0
-        
-        return model
             
+    def cad_loader_callback(self,msg):
+        new_msg = InputModel()
 
+        new_msg.assembly_name = msg.assembly_name
+        new_msg.cad_file = msg.cad_file
+        new_msg.revision = msg.revision
 
-    def cad_loader_callback(self):
-        msg = InputModel()
-        cad=self.load_cad_models()
-        msg.assembly_name = cad.get("assembly")
-        msg.cad_file = cad.get("cad_file")
-        msg.revision = cad.get("revision")
-
-        self.cad_publisher.publish(msg)
+        self.cad_publisher.publish(new_msg)
         self.get_logger().info(
-            f"PUBLISHING: next model in assembly line: {msg}"
+            f"PUBLISHING: Loaded model: {new_msg.assembly_name}"
         )
 
 

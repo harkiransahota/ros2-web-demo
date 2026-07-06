@@ -1,0 +1,13 @@
+# Goal
+string assembly_name
+string cad_file
+string revision
+
+---
+# Result
+string[] instructions
+
+---
+# Feedback
+float32 progress
+string current_step
